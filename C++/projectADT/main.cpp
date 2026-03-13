@@ -17,7 +17,6 @@ int main() {
         switch(pilihan)
         {
             case 1:
-                cout<<"Input Data Pegawai\n";
                 inputPegawai(p);
                 break;
 

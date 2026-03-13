@@ -4,7 +4,6 @@
 
 using namespace std;
 
-// Fungsi untuk menginput nilai dengan validasi (harus antara 0-100)
 float inputNilaiValid(string namaKomponen) {
     float nilai;
     while (true) {
@@ -19,12 +18,10 @@ float inputNilaiValid(string namaKomponen) {
     }
 }
 
-// Fungsi untuk menghitung nilai akhir berdasarkan rumus
 float hitungNilaiAkhir(Nilai n) {
     return (n.Kehadiran * 0.1) + (n.Tugas * 0.2) + (n.UTS * 0.3) + (n.UAS * 0.4);
 }
 
-// Fungsi untuk mengkonversi nilai angka ke huruf
 char konversiHuruf(float nilaiAkhir) {
     if (nilaiAkhir >= 80 && nilaiAkhir <= 100) return 'A';
     else if (nilaiAkhir >= 70 && nilaiAkhir < 80) return 'B';
@@ -33,7 +30,6 @@ char konversiHuruf(float nilaiAkhir) {
     else return 'E'; // < 40
 }
 
-// Fungsi untuk menampilkan detail mahasiswa
 void tampilkanDetail(Mahasiswa mhs) {
     float nilaiAkhir = hitungNilaiAkhir(mhs.nilai);
     char hurufMutu = konversiHuruf(nilaiAkhir);
