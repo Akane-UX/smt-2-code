@@ -17,14 +17,12 @@ int main() {
 
         switch (pilihan) {
             case 1:
-                // Input Data Diri
                 cout << "\n[INPUT DATA]" << endl;
-                cin.ignore(); // Membersihkan buffer newline
+                cin.ignore(); 
                 cout << "Masukkan NPM    : "; getline(cin, mhsBaru.NPM);
                 cout << "Masukkan Nama   : "; getline(cin, mhsBaru.Nama);
                 cout << "Masukkan Prodi  : "; getline(cin, mhsBaru.Prodi);
 
-                // Input Nilai dengan Validasi
                 cout << "\n[INPUT NILAI]" << endl;
                 mhsBaru.nilai.Kehadiran = inputNilaiValid("Kehadiran");
                 mhsBaru.nilai.Tugas     = inputNilaiValid("Tugas");
@@ -35,7 +33,6 @@ int main() {
                 break;
 
             case 2:
-                // Cek apakah data sudah diisi
                 if (mhsBaru.Nama.empty()) {
                     cout << "\nBelum ada data mahasiswa yang diinput. Silakan pilih menu 1." << endl;
                 } else {

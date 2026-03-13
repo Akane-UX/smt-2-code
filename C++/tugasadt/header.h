@@ -19,11 +19,8 @@ struct Mahasiswa {
 };
 
 float inputNilaiValid(string namaKomponen);
-
 float hitungNilaiAkhir(Nilai n);
-
 char konversiHuruf(float nilaiAkhir);
-
 void tampilkanDetail(Mahasiswa mhs);
 
 #endif
