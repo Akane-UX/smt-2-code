@@ -2,7 +2,7 @@ package main
 
 import "fmt"
 
-func main() {
+func ad(){
 	fmt.Println("Hello, Go!")
 	var namadepan, namaakhir, name string
 	var names [4]string
