@@ -6,21 +6,25 @@ import (
 
 func main() {
 	var tanyawaktu int
+	var nama string
 
 	fmt.Print("Masukan waktu : ")
 	fmt.Scanf("%d", &tanyawaktu)
+	
+	fmt.Print("Masukan Nama : ")
+	fmt.Scanf("%s", &nama)
 
 	if tanyawaktu < 1 || tanyawaktu > 24 {
-		fmt.Println("Wrong Format!")
+		fmt.Println("Format Salah!")
 	} else if tanyawaktu < 10 {
-		fmt.Println("Good morning.")
+		fmt.Printf("Good morning, %s!\n", nama)
 	} else if tanyawaktu < 12 {
-		fmt.Println("Good morning.")
+		fmt.Printf("Good morning, %s!\n", nama)
 	} else if tanyawaktu < 15 {
-		fmt.Println("Good day.")
+		fmt.Printf("Good day, %s!\n", nama)
 	} else if tanyawaktu < 18 {
-		fmt.Println("Good evening.")
+		fmt.Printf("Good evening, %s!\n", nama)
 	} else {
-		fmt.Println("Good Night")
+		fmt.Printf("Good Night, %s!\n", nama)
 	}
 }
