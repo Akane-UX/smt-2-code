@@ -1,10 +1,12 @@
 #include <iostream>
-#include <string.h>
+#include <iomanip>
+#include <cstring>
 
 struct Barang {
+    char kode[20];
     char nama[50];
-    int harga;
     int stok;
+    double harga;
 };
 
 void inputBarang(struct Barang brg[], int n);
