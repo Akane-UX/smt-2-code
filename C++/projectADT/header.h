@@ -1,6 +1,6 @@
 #include <iostream>
 #include <string>
-#include <random>
+
 using namespace std;
 
 typedef struct{
