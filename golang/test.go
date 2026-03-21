@@ -16,9 +16,6 @@ func ad(){
 
 	fmt.Println("namaku", namadepan, namaakhir, name)
 
-	
-
-
 fmt.Println(names[0], names[1], names[2], names[3])
 
 }
