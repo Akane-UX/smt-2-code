@@ -32,7 +32,6 @@ void push(int data)
     {
         stack.top++;
         stack.data[stack.top] = data;
-        cout << "Data " << data << " berhasil ditambahkan" << endl;
     }
 }
 
@@ -47,7 +46,6 @@ int pop()
     {
         int data = stack.data[stack.top];
         stack.top--;
-        cout << "Data " << data << " berhasil dihapus" << endl;
         return data;
     }
 }
@@ -77,11 +75,14 @@ void menu()
 
     do
     {
+        system("cls");
+        cout<<endl<<endl;
         cout << "\nMenu:" << endl;
-        cout << "1. Push" << endl;
-        cout << "2. Pop" << endl;
-        cout << "3. Print" << endl;
-        cout << "4. Clear" << endl;
+        cout << "1. Inisialisasi stack" << endl;
+        cout << "2. Push" << endl;
+        cout << "3. Pop" << endl;
+        cout << "4. Print" << endl;
+        cout << "5. Clear" << endl;
         cout << "0. Exit" << endl;
         cout << "Masukkan pilihan: ";
         cin >> choice;
@@ -89,19 +90,22 @@ void menu()
         switch (choice)
         {
             case 1:                     
+                init();
+                break;
+            case 2:                     
                 cout << "Masukkan data: ";
                 cin >> data;
                 push(data);
                 break;
-            case 2:                     
+            case 3:                     
                 nilai = pop();
                 if (nilai != -1)
                     cout << "Data yang dihapus: " << nilai << endl;
                 break;
-            case 3:                     
+            case 4:                     
                 print();
                 break;
-            case 4:                    
+            case 5:                    
                 clear();
                 break;
             case 0:                     
