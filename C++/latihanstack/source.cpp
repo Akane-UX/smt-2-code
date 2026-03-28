@@ -10,7 +10,7 @@ void init()
 
 bool isFull()
 {
-    if(stack.top == MAX)
+    if(stack.top == MAX - 1)
         return true;
     else
         return false;
