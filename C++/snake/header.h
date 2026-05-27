@@ -22,7 +22,7 @@ using namespace std;
 // ============================================================
 // KONSTANTA GAME
 // ============================================================
-const int LEBAR  = 20;   // lebar area bermain
+const int LEBAR  = 30;   // lebar area bermain
 const int TINGGI = 15;   // tinggi area bermain
 const int MAKS_SKOR_HISTORY = 5;  // maksimum skor yang disimpan di stack
 
@@ -175,4 +175,4 @@ const int KEY_DOWN  = 1002;
 const int KEY_LEFT  = 1003;
 const int KEY_RIGHT = 1004;
 
-#endif
+#endif  // HEADER_H

@@ -426,9 +426,7 @@ void inisialisasiGame(DataGame& game) {
     game.skor      = 0;
     game.gameOver  = false;
 
-    // Siapkan 3 makanan sekaligus di antrian
-    generateMakananBaru(game);
-    generateMakananBaru(game);
+    // Siapkan 1 makanan saja agar hanya muncul satu di layar
     generateMakananBaru(game);
 }
 
