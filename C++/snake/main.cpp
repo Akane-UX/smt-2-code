@@ -40,11 +40,8 @@ void tampilkanCaraMain() {
     cout << "  === CARA MAIN ===\n";
     cout << "\n";
     cout << "  Kontrol:\n";
-    cout << "    W  =  Gerak ke atas\n";
-    cout << "    S  =  Gerak ke bawah\n";
-    cout << "    A  =  Gerak ke kiri\n";
-    cout << "    D  =  Gerak ke kanan\n";
-    cout << "    Q  =  Keluar dari game\n";
+    cout << "    ARROW / WASD  =  Gerak ular\n";
+    cout << "    Q             =  Keluar dari game\n";
     cout << "\n";
     cout << "  Aturan:\n";
     cout << "    - Makan bintang (*) untuk menambah skor\n";

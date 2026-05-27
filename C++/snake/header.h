@@ -135,6 +135,8 @@ void  bersihkanUlar(LinkedListUlar& ular);
 void  inisialisasiQueue(QueueMakanan& q);
 void  enqueue(QueueMakanan& q, int x, int y);
 bool  dequeue(QueueMakanan& q, int& x, int& y);
+bool  cekTabrakanMakanan(QueueMakanan& q, int x, int y);
+bool  hapusMakananDiPosisi(QueueMakanan& q, int x, int y);
 bool  queueKosong(QueueMakanan& q);
 void  bersihkanQueue(QueueMakanan& q);
 
@@ -152,7 +154,7 @@ void  bersihkanStack(StackSkor& s);
 // DEKLARASI FUNGSI - GRAPH (peta grid)
 // ============================================================
 void  inisialisasiGraph(GraphGrid& peta);
-void  updateGraph(GraphGrid& peta, LinkedListUlar& ular, int makananX, int makananY);
+void  updateGraph(GraphGrid& peta, LinkedListUlar& ular, QueueMakanan& q);
 bool  selBisaDimasuki(GraphGrid& peta, int x, int y);
 
 // ============================================================
@@ -161,8 +163,16 @@ bool  selBisaDimasuki(GraphGrid& peta, int x, int y);
 void  inisialisasiGame(DataGame& game);
 void  generateMakananBaru(DataGame& game);
 void  pindahkanUlar(DataGame& game);
-void  tampilkanLayar(DataGame& game, int makananX, int makananY);
+void  tampilkanLayar(DataGame& game);
 void  jalankanGame(DataGame& game);
-char  ambilInput();
+int   ambilInput(); // Ubah ke int untuk handle arrow keys
+
+// ============================================================
+// KONSTANTA KEYBOARD (Arrow Keys)
+// ============================================================
+const int KEY_UP    = 1001;
+const int KEY_DOWN  = 1002;
+const int KEY_LEFT  = 1003;
+const int KEY_RIGHT = 1004;
 
 #endif

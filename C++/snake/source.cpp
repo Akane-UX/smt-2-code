@@ -144,6 +144,45 @@ bool queueKosong(QueueMakanan& q) {
     return q.depan == nullptr;
 }
 
+// Cek apakah posisi (x,y) sudah ada makanan di antrian
+bool cekTabrakanMakanan(QueueMakanan& q, int x, int y) {
+    NodeMakanan* saat = q.depan;
+    while (saat != nullptr) {
+        if (saat->x == x && saat->y == y) return true;
+        saat = saat->next;
+    }
+    return false;
+}
+
+// Hapus makanan di posisi tertentu (jika dimakan ular)
+bool hapusMakananDiPosisi(QueueMakanan& q, int x, int y) {
+    if (q.depan == nullptr) return false;
+
+    NodeMakanan* saat = q.depan;
+    NodeMakanan* sebelum = nullptr;
+
+    while (saat != nullptr) {
+        if (saat->x == x && saat->y == y) {
+            // Ketemu! Hapus node ini
+            if (sebelum == nullptr) {
+                // Hapus di depan
+                q.depan = saat->next;
+                if (q.depan == nullptr) q.belakang = nullptr;
+            } else {
+                // Hapus di tengah atau belakang
+                sebelum->next = saat->next;
+                if (saat == q.belakang) q.belakang = sebelum;
+            }
+            delete saat;
+            q.jumlah--;
+            return true;
+        }
+        sebelum = saat;
+        saat = saat->next;
+    }
+    return false;
+}
+
 void bersihkanQueue(QueueMakanan& q) {
     int x, y;
     while (!queueKosong(q)) {
@@ -253,7 +292,7 @@ void inisialisasiGraph(GraphGrid& peta) {
 }
 
 // Update status setiap sel berdasarkan posisi ular & makanan
-void updateGraph(GraphGrid& peta, LinkedListUlar& ular, int makananX, int makananY) {
+void updateGraph(GraphGrid& peta, LinkedListUlar& ular, QueueMakanan& q) {
     // Reset dulu semua sel (kecuali tembok)
     for (int baris = 0; baris < TINGGI; baris++) {
         for (int kolom = 0; kolom < LEBAR; kolom++) {
@@ -263,19 +302,23 @@ void updateGraph(GraphGrid& peta, LinkedListUlar& ular, int makananX, int makana
     }
 
     // Tandai sel yang ditempati ular
-    NodeTubuh* saat = ular.kepala;
-    while (saat != nullptr) {
-        if (saat->y >= 0 && saat->y < TINGGI &&
-            saat->x >= 0 && saat->x < LEBAR) {
-            peta.grid[saat->y][saat->x].adaUlar = true;
+    NodeTubuh* saatUlar = ular.kepala;
+    while (saatUlar != nullptr) {
+        if (saatUlar->y >= 0 && saatUlar->y < TINGGI &&
+            saatUlar->x >= 0 && saatUlar->x < LEBAR) {
+            peta.grid[saatUlar->y][saatUlar->x].adaUlar = true;
         }
-        saat = saat->next;
+        saatUlar = saatUlar->next;
     }
 
-    // Tandai sel makanan
-    if (makananY >= 0 && makananY < TINGGI &&
-        makananX >= 0 && makananX < LEBAR) {
-        peta.grid[makananY][makananX].adaMakanan = true;
+    // Tandai SEMUA sel makanan dari antrian (Queue)
+    NodeMakanan* saatMakan = q.depan;
+    while (saatMakan != nullptr) {
+        if (saatMakan->y >= 0 && saatMakan->y < TINGGI &&
+            saatMakan->x >= 0 && saatMakan->x < LEBAR) {
+            peta.grid[saatMakan->y][saatMakan->x].adaMakanan = true;
+        }
+        saatMakan = saatMakan->next;
     }
 }
 
@@ -290,14 +333,24 @@ bool selBisaDimasuki(GraphGrid& peta, int x, int y) {
 // ============================================================
 //  FUNGSI INPUT KEYBOARD (cross-platform)
 // ============================================================
-char ambilInput() {
+int ambilInput() {
 #ifdef _WIN32
     if (_kbhit()) {
-        return _getch();
+        int ch = _getch();
+        if (ch == 0 || ch == 224) { // Kode awal untuk arrow keys
+            ch = _getch();
+            switch (ch) {
+                case 72: return KEY_UP;
+                case 80: return KEY_DOWN;
+                case 75: return KEY_LEFT;
+                case 77: return KEY_RIGHT;
+            }
+        }
+        return ch;
     }
     return 0;
 #else
-    // Linux/Mac: set terminal ke non-blocking
+    // Linux/Mac: set terminal ke non-blocking dan handle escape sequences
     struct termios t_lama, t_baru;
     tcgetattr(STDIN_FILENO, &t_lama);
     t_baru = t_lama;
@@ -307,10 +360,25 @@ char ambilInput() {
     tcsetattr(STDIN_FILENO, TCSANOW, &t_baru);
 
     char c = 0;
-    read(STDIN_FILENO, &c, 1);
+    int nread = read(STDIN_FILENO, &c, 1);
+    
+    if (nread > 0 && c == '\033') { // Escape sequence
+        char seq[3];
+        if (read(STDIN_FILENO, &seq[0], 1) > 0 && read(STDIN_FILENO, &seq[1], 1) > 0) {
+            if (seq[0] == '[') {
+                tcsetattr(STDIN_FILENO, TCSANOW, &t_lama);
+                switch (seq[1]) {
+                    case 'A': return KEY_UP;
+                    case 'B': return KEY_DOWN;
+                    case 'C': return KEY_RIGHT;
+                    case 'D': return KEY_LEFT;
+                }
+            }
+        }
+    }
 
     tcsetattr(STDIN_FILENO, TCSANOW, &t_lama);
-    return c;
+    return (nread > 0) ? (int)c : 0;
 #endif
 }
 
@@ -320,18 +388,15 @@ char ambilInput() {
 //  Posisi makanan dibuat random lalu dimasukkan ke Queue
 // ============================================================
 void generateMakananBaru(DataGame& game) {
-    // CATATAN: srand() tidak dipanggil di sini.
-    // Dipanggil sekali saja di inisialisasiGame() agar angka benar-benar random.
-
     int x, y;
     int coba = 0;
 
-    // Coba cari posisi kosong (bukan tembok, bukan ular)
+    // Coba cari posisi kosong (bukan tembok, bukan ular, bukan makanan lain)
     do {
-        x = rand() % (LEBAR  - 2) + 1;  // 1 sampai LEBAR-2
-        y = rand() % (TINGGI - 2) + 1;  // 1 sampai TINGGI-2
+        x = rand() % (LEBAR  - 2) + 1;
+        y = rand() % (TINGGI - 2) + 1;
         coba++;
-    } while (cekTabrakanDiri(game.ular, x, y) && coba < 100);
+    } while ((cekTabrakanDiri(game.ular, x, y) || cekTabrakanMakanan(game.antrian, x, y)) && coba < 100);
 
     // Masukkan posisi makanan ke antrian (Queue)
     enqueue(game.antrian, x, y);
@@ -398,29 +463,10 @@ void pindahkanUlar(DataGame& game) {
     // Gerakkan ular: tambah kepala baru di depan
     tambahKepalaBaru(game.ular, kepalaBaru_X, kepalaBaru_Y);
 
-    // ===========================================================
-    // BUG FIX: Cek makanan langsung dari Queue (bukan dari graph).
-    // Graph baru diupdate saat tampilkanLayar, jadi cek dari graph
-    // di sini belum akurat. Solusi: bandingkan posisi kepala
-    // dengan posisi makanan paling depan di antrian.
-    // ===========================================================
-    bool adaMakananDiSini = false;
-    if (!queueKosong(game.antrian)) {
-        int mX = game.antrian.depan->x;
-        int mY = game.antrian.depan->y;
-        if (mX == kepalaBaru_X && mY == kepalaBaru_Y) {
-            adaMakananDiSini = true;
-        }
-    }
-
-    if (adaMakananDiSini) {
+    // BUG FIX: Cek apakah kepala baru memakan SALAH SATU makanan di antrian
+    if (hapusMakananDiPosisi(game.antrian, kepalaBaru_X, kepalaBaru_Y)) {
         // Makan! Skor bertambah, ekor TIDAK dihapus (ular memanjang)
         game.skor += 10;
-
-        // Keluarkan makanan yang dimakan dari Queue (dequeue)
-        int mX, mY;
-        dequeue(game.antrian, mX, mY);
-
         // Isi antrian lagi dengan makanan baru
         generateMakananBaru(game);
     } else {
@@ -433,16 +479,16 @@ void pindahkanUlar(DataGame& game) {
 // ============================================================
 //  TAMPILKAN LAYAR GAME
 // ============================================================
-void tampilkanLayar(DataGame& game, int makananX, int makananY) {
+void tampilkanLayar(DataGame& game) {
     system(CLEAR);
 
-    // Update graph dulu sebelum tampil
-    updateGraph(game.peta, game.ular, makananX, makananY);
+    // Update graph dengan semua makanan
+    updateGraph(game.peta, game.ular, game.antrian);
 
     cout << "=== GAME SNAKE - STRUKTUR DATA ===" << "\n";
     cout << "Skor: " << game.skor
          << "  |  Panjang Ular: " << game.ular.panjang << "\n";
-    cout << "Kontrol: W=Atas  S=Bawah  A=Kiri  D=Kanan  Q=Keluar\n";
+    cout << "Kontrol: ARROW atau WASD  (Q=Keluar)\n";
     cout << "\n";
 
     // Gambar grid berdasarkan GraphGrid
@@ -469,7 +515,7 @@ void tampilkanLayar(DataGame& game, int makananX, int makananY) {
     cout << "\n";
     cout << "--- Struktur Data yang Digunakan ---\n";
     cout << "Linked List : tubuh ular (" << game.ular.panjang << " node)\n";
-    cout << "Queue       : " << game.antrian.jumlah << " makanan menunggu di antrian\n";
+    cout << "Queue       : " << game.antrian.jumlah << " makanan di layar/antrian\n";
     cout << "Stack       : " << game.riwayat.jumlah << " skor tersimpan di riwayat\n";
     cout << "Graph       : grid " << LEBAR << "x" << TINGGI << " (tiap sel = node graph)\n";
 }
@@ -477,32 +523,11 @@ void tampilkanLayar(DataGame& game, int makananX, int makananY) {
 
 // ============================================================
 //  LOOP UTAMA GAME
-// ============================================================
+// ============================
 void jalankanGame(DataGame& game) {
-    int makananX = 0, makananY = 0;
-
-    // ===========================================================
-    // BUG FIX: Tampilkan layar SEBELUM loop dimulai agar pemain
-    // bisa melihat posisi awal ular dan makanan dulu.
-    // ===========================================================
-    if (!queueKosong(game.antrian)) {
-        makananX = game.antrian.depan->x;
-        makananY = game.antrian.depan->y;
-    }
-    tampilkanLayar(game, makananX, makananY);
+    tampilkanLayar(game);
 
     while (!game.gameOver) {
-        // ===========================================================
-        // BUG FIX: Urutan yang benar:
-        // 1. Delay (tunggu input)
-        // 2. Baca input
-        // 3. Gerak ular
-        // 4. Update posisi makanan aktif
-        // 5. Tampilkan layar
-        // Sebelumnya tampilkanLayar ada di akhir tapi delay juga
-        // di akhir — ini tidak masalah, tapi sekarang lebih rapi.
-        // ===========================================================
-
         // Delay agar game tidak terlalu cepat
 #ifdef _WIN32
         Sleep(150);
@@ -511,16 +536,16 @@ void jalankanGame(DataGame& game) {
 #endif
 
         // Baca input keyboard (non-blocking)
-        char tombol = ambilInput();
+        int tombol = ambilInput();
 
-        // Update arah (tidak boleh berbalik arah 180 derajat)
-        if      ((tombol == 'w' || tombol == 'W') && game.arahGerak != BAWAH)
+        // Update arah (support WASD + Arrow Keys)
+        if      (((tombol == 'w' || tombol == 'W') || tombol == KEY_UP)    && game.arahGerak != BAWAH)
             game.arahGerak = ATAS;
-        else if ((tombol == 's' || tombol == 'S') && game.arahGerak != ATAS)
+        else if (((tombol == 's' || tombol == 'S') || tombol == KEY_DOWN)  && game.arahGerak != ATAS)
             game.arahGerak = BAWAH;
-        else if ((tombol == 'a' || tombol == 'A') && game.arahGerak != KANAN)
+        else if (((tombol == 'a' || tombol == 'A') || tombol == KEY_LEFT)  && game.arahGerak != KANAN)
             game.arahGerak = KIRI;
-        else if ((tombol == 'd' || tombol == 'D') && game.arahGerak != KIRI)
+        else if (((tombol == 'd' || tombol == 'D') || tombol == KEY_RIGHT) && game.arahGerak != KIRI)
             game.arahGerak = KANAN;
         else if (tombol == 'q' || tombol == 'Q') {
             game.gameOver = true;
@@ -530,14 +555,8 @@ void jalankanGame(DataGame& game) {
         // Pindahkan ular satu langkah
         pindahkanUlar(game);
 
-        // Update posisi makanan aktif untuk tampilan
-        if (!queueKosong(game.antrian)) {
-            makananX = game.antrian.depan->x;
-            makananY = game.antrian.depan->y;
-        }
-
         // Tampilkan layar hasil setelah bergerak
-        tampilkanLayar(game, makananX, makananY);
+        tampilkanLayar(game);
     }
 
     // Simpan skor ke Stack setelah game selesai
@@ -556,4 +575,3 @@ void jalankanGame(DataGame& game) {
     tampilkanRiwayatSkor(game.riwayat);
     cout << "\n";
 }
-
