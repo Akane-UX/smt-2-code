@@ -2,12 +2,10 @@ import cv2
 import mediapipe as mp
 import numpy as np
 
-# ── Setup MediaPipe ──────────────────────────────────────────────────────────
 mp_hands = mp.solutions.hands
 hands = mp_hands.Hands(max_num_hands=1, min_detection_confidence=0.7)
 mp_draw = mp.solutions.drawing_utils
 
-# ── State ────────────────────────────────────────────────────────────────────
 cap = cv2.VideoCapture(0)
 ret, frame = cap.read()
 canvas = np.zeros_like(frame)          # layer gambar terpisah
@@ -17,7 +15,7 @@ draw_color = (0, 255, 0)               # hijau default
 brush_size = 5
 mode = "draw"                          # "draw" | "erase"
 
-# Palet warna (B, G, R)
+# Pallet warna (B, G, R)
 colors = {
     "g": (0, 255, 0),   # hijau
     "r": (0, 0, 255),   # merah
@@ -26,16 +24,16 @@ colors = {
 }
 
 print("="*45)
-print("  FINGER DRAW — kontrol kamera + keyboard")
+print("  FINGER DRAW — Layout")
 print("="*45)
-print("  Acungkan TELUNJUK  → gambar")
-print("  Acungkan 2+ jari   → jeda (angkat pena)")
+print("  TELUNJUK    → gambar")
+print("  Pose peace  → stop")
 print()
 print("  Keyboard:")
 print("  g/r/b/w → ganti warna (hijau/merah/biru/putih)")
-print("  e       → mode hapus")
-print("  d       → mode gambar")
-print("  c       → bersihkan canvas")
+print("  e       → eraser")
+print("  d       → brush")
+print("  c       → clear)
 print("  +/-     → ukuran brush")
 print("  q / ESC → keluar")
 print("="*45)
@@ -57,7 +55,7 @@ while True:
     if not ret:
         break
 
-    frame = cv2.flip(frame, 1)         # mirror biar natural
+    frame = cv2.flip(frame, 1)         # mirror cam
     h, w, _ = frame.shape
     rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
     result = hands.process(rgb)
@@ -73,7 +71,7 @@ while True:
             cx = int(tip.x * w)
             cy = int(tip.y * h)
 
-            if n_fingers == 1:             # hanya telunjuk → gambar/hapus
+            if n_fingers == 1:             # hanya telunjuk → brush/eraser
                 finger_x, finger_y = cx, cy
                 if prev_x and prev_y:
                     color = (0, 0, 0) if mode == "erase" else draw_color
