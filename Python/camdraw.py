@@ -126,4 +126,3 @@ while True:
 cap.release()
 cv2.destroyAllWindows()
 
-## note : use command QT_QPA_PLATFORM=xcb python /home/avrl/smt-2-code/Python/camdraw.py to run on linux with QT error
