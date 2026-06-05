@@ -79,7 +79,7 @@ while True:
                     cv2.line(canvas, (prev_x, prev_y), (cx, cy), color, size)
                 cv2.circle(frame, (cx, cy), brush_size, draw_color, -1)
             else:
-                # 2+ jari = angkat pena
+                # pose peace = stop brush
                 prev_x, prev_y = None, None
 
         prev_x, prev_y = finger_x, finger_y
