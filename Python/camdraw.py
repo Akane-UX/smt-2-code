@@ -33,7 +33,7 @@ print("  Keyboard:")
 print("  g/r/b/w → ganti warna (hijau/merah/biru/putih)")
 print("  e       → eraser")
 print("  d       → brush")
-print("  c       → clear)
+print("  c       → clear")
 print("  +/-     → ukuran brush")
 print("  q / ESC → keluar")
 print("="*45)
@@ -123,4 +123,7 @@ while True:
 
 cap.release()
 cv2.destroyAllWindows()
+
+
 ## note : use command QT_QPA_PLATFORM=xcb python /home/avrl/smt-2-code/Python/camdraw.py to run on linux with QT error
+

@@ -152,14 +152,14 @@ SELECT kota, COUNT(*) AS jumlah_pelanggan
 FROM pelanggan
 GROUP BY kota
 ORDER BY jumlah_pelanggan DESC;
- 
+
 -- 17. Pelanggan yang tidak pernah bertransaksi (menggunakan NOT EXISTS)
 SELECT p.*
 FROM pelanggan p
 WHERE NOT EXISTS (
     SELECT 1 FROM transaksi t WHERE t.id_pelanggan = p.id_pelanggan
 );
- 
+
 -- 18. 3 pelanggan dengan total transaksi tertinggi
 SELECT p.nama, SUM(t.total_bayar) AS total_transaksi
 FROM pelanggan p
@@ -167,14 +167,14 @@ JOIN transaksi t ON p.id_pelanggan = t.id_pelanggan
 GROUP BY p.id_pelanggan, p.nama
 ORDER BY total_transaksi DESC
 LIMIT 3;
- 
+
 -- 19. Kota dan total transaksi per kota, hanya jika > 500000
 SELECT p.kota, SUM(t.total_bayar) AS total_transaksi
 FROM pelanggan p
 JOIN transaksi t ON p.id_pelanggan = t.id_pelanggan
 GROUP BY p.kota
 HAVING SUM(t.total_bayar) > 500000;
- 
+
 -- 20. Gabungkan nama pelanggan dan nama produk yang pernah dibeli dalam satu kolom
 SELECT nama AS nama_item FROM pelanggan
 UNION ALL

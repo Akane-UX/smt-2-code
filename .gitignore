@@ -1,2 +1,3 @@
 Python/camdraw.py
-venv_draw
+/venv_draw
+.gitignore
